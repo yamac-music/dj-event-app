@@ -1,7 +1,7 @@
 # DJイベント管理アプリ
 
-ブラウザだけで動く、シンプルなDJイベント管理ツールです。
-https://yamac-music.github.io/dj-event-app/**
+ブラウザだけで動く、シンプルなDJイベント管理ツールです。<br>
+https://yamac-music.github.io/dj-event-app/
 
 ---
 
