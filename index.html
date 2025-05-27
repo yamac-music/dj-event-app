@@ -5,104 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DJイベント管理アプリ</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css"> 
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center p-4 sm:p-6">
+<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col items-center p-4 sm:p-6">
 
-    <div class="container mx-auto w-full max-w-4xl bg-white p-5 sm:p-8 rounded-xl shadow-xl">
+    <div class="container mx-auto w-full max-w-4xl bg-slate-800 p-5 sm:p-8 rounded-xl shadow-2xl border border-slate-700">
         <header class="mb-6 sm:mb-8 text-center">
-            <h1 class="text-3xl sm:text-4xl font-bold text-blue-700">DJイベント管理</h1>
+            <h1 class="text-3xl sm:text-4xl font-bold text-sky-400">DJイベント管理 Ver.2.6</h1>
         </header>
 
         <div class="mb-8">
             <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
-                <h2 class="text-2xl font-semibold text-blue-600">イベント一覧</h2>
+                <h2 class="text-2xl font-semibold text-sky-500">イベント一覧</h2>
                 <div class="flex gap-2">
-                    <button onclick="triggerJsonImport()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-3 rounded-md shadow-md text-sm transition duration-150 ease-in-out">
+                    <button onclick="triggerJsonImport()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 rounded-md shadow-md text-sm transition duration-150 ease-in-out">
                         JSON読込
                     </button>
                     <input type="file" id="jsonImportFile" accept=".json" class="hidden" onchange="importEventFromJson(event)">
-                    <button onclick="openAddEventModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-150 ease-in-out">
+                    <button onclick="openAddEventModal()" class="bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-150 ease-in-out">
                         新しいイベントを追加
                     </button>
                 </div>
             </div>
-            <div id="eventListContainer" class="event-list-container max-h-[70vh] overflow-y-auto bg-gray-50 p-1 rounded-lg shadow-inner">
+            <div id="eventListContainer" class="event-list-container max-h-[70vh] overflow-y-auto bg-slate-700 p-1 rounded-lg shadow-inner border border-slate-600">
                 <ul id="eventList" class="space-y-6 p-3">
                     </ul>
-                <p id="noEventsMessage" class="text-center text-gray-500 p-4 hidden">登録されているイベントはありません。</p>
+                <p id="noEventsMessage" class="text-center text-slate-400 p-4 hidden">登録されているイベントはありません。</p>
             </div>
         </div>
     </div>
 
     <div id="eventModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content"> {/* Styles are in style.css */}
             <span class="close-button" onclick="closeEventModal()">&times;</span>
-            <h2 id="modalTitle" class="text-2xl font-semibold mb-6 text-blue-700">イベント情報を入力</h2>
+            <h2 id="modalTitle" class="text-2xl font-semibold mb-6 text-sky-400">イベント情報を入力</h2>
             <form id="eventForm" class="space-y-6">
                 <input type="hidden" id="eventId">
                 
                 <div>
-                    <label for="eventName" class="block text-sm font-medium text-gray-700 mb-1">イベント名 <span class="text-red-500">*</span></label>
-                    <input type="text" id="eventName" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400" required>
+                    <label for="eventName" class="block text-sm font-medium text-slate-300 mb-1">イベント名 <span class="text-red-400">*</span></label>
+                    <input type="text" id="eventName" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-md focus:ring-sky-500 focus:border-sky-500 text-slate-100 placeholder-slate-400" required>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label for="eventDate" class="block text-sm font-medium text-gray-700 mb-1">開催日 <span class="text-red-500">*</span></label>
-                        <input type="date" id="eventDate" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900" required>
+                        <label for="eventDate" class="block text-sm font-medium text-slate-300 mb-1">開催日 <span class="text-red-400">*</span></label>
+                        <input type="date" id="eventDate" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-md focus:ring-sky-500 focus:border-sky-500 text-slate-100" required>
                     </div>
                     <div>
-                        <label for="eventVenue" class="block text-sm font-medium text-gray-700 mb-1">会場</label>
-                        <input type="text" id="eventVenue" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400">
+                        <label for="eventVenue" class="block text-sm font-medium text-slate-300 mb-1">会場</label>
+                        <input type="text" id="eventVenue" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-md focus:ring-sky-500 focus:border-sky-500 text-slate-100 placeholder-slate-400">
                     </div>
                 </div>
                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label for="eventStartTime" class="block text-sm font-medium text-gray-700 mb-1">開始時刻 <span class="text-red-500">*</span></label>
-                        <input type="time" id="eventStartTime" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900" required>
+                        <label for="eventStartTime" class="block text-sm font-medium text-slate-300 mb-1">開始時刻 <span class="text-red-400">*</span></label>
+                        <input type="time" id="eventStartTime" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-md focus:ring-sky-500 focus:border-sky-500 text-slate-100" required>
                     </div>
                     <div>
-                        <label for="eventEndTime" class="block text-sm font-medium text-gray-700 mb-1">終了時刻</label>
-                        <input type="time" id="eventEndTime" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900">
-                         <p class="text-xs text-gray-500 mt-1">夜間イベント等で日付をまたぐ場合も入力可</p>
+                        <label for="eventEndTime" class="block text-sm font-medium text-slate-300 mb-1">終了時刻</label>
+                        <input type="time" id="eventEndTime" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-md focus:ring-sky-500 focus:border-sky-500 text-slate-100">
+                         <p class="text-xs text-slate-400 mt-1">夜間イベント等で日付をまたぐ場合も入力可</p>
                     </div>
                 </div>
                 
                 <div>
-                    <label for="eventDJ" class="block text-sm font-medium text-gray-700 mb-1">メインDJ/主催者</label>
-                    <input type="text" id="eventDJ" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400" placeholder="例: DJ Organizer">
+                    <label for="eventDJ" class="block text-sm font-medium text-slate-300 mb-1">メインDJ/主催者</label>
+                    <input type="text" id="eventDJ" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-md focus:ring-sky-500 focus:border-sky-500 text-slate-100 placeholder-slate-400" placeholder="例: DJ Organizer">
                 </div>
 
-                <fieldset class="border border-gray-300 p-4 rounded-md">
-                    <legend class="text-lg font-medium text-blue-600 px-2">ゲストDJ & タイムテーブル</legend>
+                <fieldset class="border border-slate-600 p-4 rounded-md">
+                    <legend class="text-lg font-medium text-sky-500 px-2">ゲストDJ & タイムテーブル</legend>
                     <div id="guestDJsContainer" class="space-y-3 mb-3 max-h-60 overflow-y-auto p-1">
                         </div>
-                    <button type="button" onclick="addGuestDJField()" class="text-sm bg-sky-500 hover:bg-sky-600 text-white py-1.5 px-3 rounded-md transition duration-150">ゲストDJを追加</button>
-                    <p class="text-xs text-gray-500 mt-2">各DJの行をドラッグ＆ドロップして順番を入れ替えられます。時刻は自動更新されます。</p>
+                    <button type="button" onclick="addGuestDJField()" class="text-sm bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-3 rounded-md transition duration-150">ゲストDJを追加</button>
+                    <p class="text-xs text-slate-400 mt-2">各DJの行をドラッグ＆ドロップして順番を入れ替えられます。時刻は自動更新されます。</p>
                 </fieldset>
 
-                <fieldset class="border border-gray-300 p-4 rounded-md">
-                    <legend class="text-lg font-medium text-blue-600 px-2">VJ</legend>
+                <fieldset class="border border-slate-600 p-4 rounded-md">
+                    <legend class="text-lg font-medium text-sky-500 px-2">VJ</legend>
                     <div id="vjsContainer" class="space-y-3 mb-3 max-h-40 overflow-y-auto p-1">
                         </div>
-                    <button type="button" onclick="addVJField()" class="text-sm bg-teal-500 hover:bg-teal-600 text-white py-1.5 px-3 rounded-md transition duration-150">VJを追加</button>
+                    <button type="button" onclick="addVJField()" class="text-sm bg-teal-600 hover:bg-teal-700 text-white py-1.5 px-3 rounded-md transition duration-150">VJを追加</button>
                 </fieldset>
                 
                 <div>
-                    <label for="eventNotes" class="block text-sm font-medium text-gray-700 mb-1">備考</label>
-                    <textarea id="eventNotes" rows="3" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"></textarea>
+                    <label for="eventNotes" class="block text-sm font-medium text-slate-300 mb-1">備考</label>
+                    <textarea id="eventNotes" rows="3" class="w-full p-3 bg-slate-700 border border-slate-600 rounded-md focus:ring-sky-500 focus:border-sky-500 text-slate-100 placeholder-slate-400"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeEventModal()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md transition duration-150">キャンセル</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition duration-150">イベントを保存</button>
+                    <button type="button" onclick="closeEventModal()" class="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-slate-100 rounded-md transition duration-150">キャンセル</button>
+                    <button type="submit" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-md transition duration-150">イベントを保存</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="notification" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md transition-opacity duration-300 opacity-0 z-[1001]">
+    <div id="notification" class="fixed bottom-5 right-5 bg-green-600 text-white py-2 px-4 rounded-lg shadow-md transition-opacity duration-300 opacity-0 z-[1001]">
         メッセージ
     </div>
 
@@ -117,18 +117,18 @@
         let draggedItem = null; 
 
         function getEvents() {
-            // ローカルストレージのキーをバージョンアップ (CSS分離版のため)
-            return JSON.parse(localStorage.getItem('dj_events_v2.5')) || []; 
+            // ローカルストレージのキーをバージョンアップ (ダークテーマ版のため)
+            return JSON.parse(localStorage.getItem('dj_events_v2.6')) || []; 
         }
 
         function saveEvents(events) {
-            localStorage.setItem('dj_events_v2.5', JSON.stringify(events));
+            localStorage.setItem('dj_events_v2.6', JSON.stringify(events));
         }
 
         function showNotification(message, type = 'success') {
             notification.textContent = message;
-            notification.classList.remove('bg-red-500', 'bg-green-500', 'opacity-0');
-            notification.classList.add(type === 'success' ? 'bg-green-500' : 'bg-red-500');
+            notification.classList.remove('bg-red-600', 'bg-green-600', 'opacity-0'); // Adjusted for dark theme button consistency
+            notification.classList.add(type === 'success' ? 'bg-green-600' : 'bg-red-600');
             setTimeout(() => notification.classList.add('opacity-0'), 3000);
         }
         
@@ -243,20 +243,20 @@
             const djDuration = dj ? dj.duration : 50; 
 
             const div = document.createElement('div');
-            div.className = 'guest-dj-item flex items-center space-x-2 p-2 border border-gray-300 rounded-md draggable bg-gray-50 hover:bg-gray-100';
+            div.className = 'guest-dj-item flex items-center space-x-2 p-2 border border-slate-600 rounded-md draggable bg-slate-700 hover:bg-slate-600';
             div.setAttribute('draggable', true);
             div.dataset.guestDjId = djId; 
 
             div.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-gray-500 cursor-grab flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-slate-400 cursor-grab flex-shrink-0">
                   <path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v12.5a.75.75 0 01-1.5 0V3.75A.75.75 0 0110 3zM3.75 10a.75.75 0 01.75-.75h11.5a.75.75 0 010 1.5H4.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
                 </svg>
                 <input type="hidden" class="guest-dj-id" value="${djId}">
-                <input type="text" class="guest-dj-name flex-grow p-2 bg-white border border-gray-300 rounded-md input-sm text-gray-900 placeholder-gray-400" placeholder="ゲストDJ名" value="${djName}" required>
-                <input type="number" class="guest-dj-duration w-20 p-2 bg-white border border-gray-300 rounded-md input-sm text-gray-900" placeholder="分" value="${djDuration}" min="10" step="5" required>
-                <span class="text-gray-600 text-xs">分</span>
-                <span class="dj-time-display text-xs text-blue-600 w-28 text-center">--:-- - --:--</span>
-                <button type="button" onclick="removeGuestDJField(this)" class="text-red-500 hover:text-red-600 font-bold p-1 rounded-full flex-shrink-0">
+                <input type="text" class="guest-dj-name flex-grow p-2 bg-slate-600 border border-slate-500 rounded-md input-sm text-slate-100 placeholder-slate-400" placeholder="ゲストDJ名" value="${djName}" required>
+                <input type="number" class="guest-dj-duration w-20 p-2 bg-slate-600 border border-slate-500 rounded-md input-sm text-slate-100" placeholder="分" value="${djDuration}" min="10" step="5" required>
+                <span class="text-slate-400 text-xs">分</span>
+                <span class="dj-time-display text-xs text-sky-400 w-28 text-center">--:-- - --:--</span>
+                <button type="button" onclick="removeGuestDJField(this)" class="text-red-400 hover:text-red-500 font-bold p-1 rounded-full flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
                 </button>
             `;
@@ -279,17 +279,17 @@
             const assignedDJIds = (vj && currentGuestDJs.length > 0) ? (vj.assignedDJIds || []) : [];
 
             const div = document.createElement('div');
-            div.className = 'vj-item flex flex-col space-y-2 p-3 border border-gray-300 rounded-md bg-gray-50 hover:bg-gray-100';
+            div.className = 'vj-item flex flex-col space-y-2 p-3 border border-slate-600 rounded-md bg-slate-700 hover:bg-slate-600';
             div.innerHTML = `
                 <div class="flex items-center space-x-2">
                     <input type="hidden" class="vj-id" value="${vjId}">
-                    <input type="text" class="vj-name w-full p-2 bg-white border border-gray-300 rounded-md input-sm text-gray-900 placeholder-gray-400" placeholder="VJ名" value="${vjName}" required>
-                    <button type="button" onclick="removeVJField(this)" class="text-red-500 hover:text-red-600 font-bold p-1 rounded-full flex-shrink-0">
+                    <input type="text" class="vj-name w-full p-2 bg-slate-600 border border-slate-500 rounded-md input-sm text-slate-100 placeholder-slate-400" placeholder="VJ名" value="${vjName}" required>
+                    <button type="button" onclick="removeVJField(this)" class="text-red-400 hover:text-red-500 font-bold p-1 rounded-full flex-shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
                     </button>
                 </div>
                 <div class="assigned-djs-for-vj pl-2">
-                    <p class="text-xs text-gray-500 mb-1">担当するゲストDJ:</p>
+                    <p class="text-xs text-slate-400 mb-1">担当するゲストDJ:</p>
                     <div class="assigned-djs-checkboxes grid grid-cols-2 sm:grid-cols-3 gap-1">
                         ${generateAssignedDJCheckboxes(vjId, assignedDJIds, currentGuestDJs.length > 0 ? currentGuestDJs : getGuestDJsFromForm())}
                     </div>
@@ -312,11 +312,11 @@
 
         function generateAssignedDJCheckboxes(vjId, assignedDJIds = [], guestDJs = []) {
             if (guestDJs.length === 0) {
-                return '<p class="text-xs text-gray-500 col-span-full">ゲストDJを先に追加してください。</p>';
+                return '<p class="text-xs text-slate-500 col-span-full">ゲストDJを先に追加してください。</p>';
             }
             return guestDJs.map(dj => `
-                <label class="flex items-center space-x-1 text-xs text-gray-700">
-                    <input type="checkbox" class="assigned-dj-checkbox bg-white border-gray-300 rounded text-blue-600 focus:ring-blue-500" data-vj-id="${vjId}" data-guest-dj-id="${dj.id}" ${assignedDJIds.includes(dj.id) ? 'checked' : ''}>
+                <label class="flex items-center space-x-1 text-xs text-slate-300">
+                    <input type="checkbox" class="assigned-dj-checkbox bg-slate-600 border-slate-500 rounded text-sky-500 focus:ring-sky-500" data-vj-id="${vjId}" data-guest-dj-id="${dj.id}" ${assignedDJIds.includes(dj.id) ? 'checked' : ''}>
                     <span>${dj.name}</span>
                 </label>
             `).join('');
@@ -613,9 +613,9 @@
                 
                 events.forEach(event => {
                     const li = document.createElement('li');
-                    li.className = 'bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 border border-gray-200';
+                    li.className = 'bg-slate-700 p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 border border-slate-600';
                     
-                    let timetableHTML = '<p class="text-xs text-gray-500 col-span-3">タイムテーブル情報がありません。</p>';
+                    let timetableHTML = '<p class="text-xs text-slate-400 col-span-3">タイムテーブル情報がありません。</p>';
                     if (event.guestDJs && event.guestDJs.length > 0 && event.date && event.eventStartTime) {
                         const baseDate = new Date(event.date + 'T00:00:00');
                         let currentDateTime = new Date(event.date + 'T' + event.eventStartTime);
@@ -639,9 +639,9 @@
                                 }
                             }
                             timetableHTML += `
-                                <div class="text-xs text-blue-600 whitespace-nowrap">${formatWithDay(djStartTime, baseDate)}<br class="sm:hidden"/> - ${formatWithDay(djEndTime, baseDate)}</div>
-                                <div class="text-sm text-gray-800 truncate" title="${dj.name}">${dj.name}</div>
-                                <div class="text-xs text-gray-600 text-right truncate" title="${assignedVJName}">${assignedVJName}</div>
+                                <div class="text-xs text-sky-400 whitespace-nowrap">${formatWithDay(djStartTime, baseDate)}<br class="sm:hidden"/> - ${formatWithDay(djEndTime, baseDate)}</div>
+                                <div class="text-sm text-slate-100 truncate" title="${dj.name}">${dj.name}</div>
+                                <div class="text-xs text-slate-300 text-right truncate" title="${assignedVJName}">${assignedVJName}</div>
                             `;
                         });
                     }
@@ -651,27 +651,27 @@
                     li.innerHTML = `
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
                             <div>
-                                <h3 class="text-xl font-semibold text-blue-700">${event.name}</h3>
-                                <p class="text-sm text-gray-600">
+                                <h3 class="text-xl font-semibold text-sky-400">${event.name}</h3>
+                                <p class="text-sm text-slate-300">
                                     ${new Date(event.date).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })} ${eventTimeStr}
                                     ${event.venue ? `@ ${event.venue}`: ''}
                                 </p>
-                                ${event.dj ? `<p class="text-sm text-gray-700">主催/メインDJ: ${event.dj}</p>` : ''}
+                                ${event.dj ? `<p class="text-sm text-slate-200">主催/メインDJ: ${event.dj}</p>` : ''}
                             </div>
                             <div class="flex flex-wrap gap-2 mt-2 sm:mt-0 flex-shrink-0 action-button-group">
-                                <button onclick="copyTimetableToClipboard('${event.id}')" class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-1 px-2.5 rounded-md text-xs transition duration-150" title="タイムテーブルをテキストでコピー">TTコピー</button>
-                                <button onclick="exportEventAsJson('${event.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-1 px-2.5 rounded-md text-xs transition duration-150" title="イベントデータをJSONでエクスポート">JSON出力</button>
-                                <button onclick="openEditEventModal('${event.id}')" class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-medium py-1 px-2.5 rounded-md text-xs transition duration-150">編集</button>
-                                <button onclick="deleteEvent('${event.id}')" class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-2.5 rounded-md text-xs transition duration-150">削除</button>
+                                <button onclick="copyTimetableToClipboard('${event.id}')" class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-1 px-2.5 rounded-md text-xs transition duration-150" title="タイムテーブルをテキストでコピー">TTコピー</button>
+                                <button onclick="exportEventAsJson('${event.id}')" class="bg-teal-600 hover:bg-teal-700 text-white font-medium py-1 px-2.5 rounded-md text-xs transition duration-150" title="イベントデータをJSONでエクスポート">JSON出力</button>
+                                <button onclick="openEditEventModal('${event.id}')" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-medium py-1 px-2.5 rounded-md text-xs transition duration-150">編集</button>
+                                <button onclick="deleteEvent('${event.id}')" class="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-2.5 rounded-md text-xs transition duration-150">削除</button>
                             </div>
                         </div>
                         <div class="mt-2">
-                            <h4 class="font-semibold text-blue-600 mb-2 text-sm">タイムテーブル:</h4>
-                            <div class="timetable-grid bg-gray-50 p-3 rounded-md border border-gray-200">
+                            <h4 class="font-semibold text-sky-500 mb-2 text-sm">タイムテーブル:</h4>
+                            <div class="timetable-grid bg-slate-600 p-3 rounded-md border border-slate-500">
                                 ${timetableHTML}
                             </div>
                         </div>
-                        ${event.notes ? `<div class="mt-3 pt-3 border-t border-gray-200"><p class="text-xs text-gray-500">備考: ${event.notes}</p></div>` : ''}
+                        ${event.notes ? `<div class="mt-3 pt-3 border-t border-slate-600"><p class="text-xs text-slate-400">備考: ${event.notes}</p></div>` : ''}
                     `;
                     eventList.appendChild(li);
                 });
