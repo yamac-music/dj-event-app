@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJイベント管理アプリ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center p-4 sm:p-6">
+
+    <div class="container mx-auto w-full max-w-4xl bg-white p-5 sm:p-8 rounded-xl shadow-xl">
+        <header class="mb-6 sm:mb-8 text-center">
+            <h1 class="text-3xl sm:text-4xl font-bold text-blue-700">DJイベント管理</h1>
+        </header>
+
+        <div class="mb-8">
+            <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+                <h2 class="text-2xl font-semibold text-blue-600">イベント一覧</h2>
+                <div class="flex gap-2">
+                    <button onclick="triggerJsonImport()" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-3 rounded-md shadow-md text-sm transition duration-150 ease-in-out">
+                        JSON読込
+                    </button>
+                    <input type="file" id="jsonImportFile" accept=".json" class="hidden" onchange="importEventFromJson(event)">
+                    <button onclick="openAddEventModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-md transition duration-150 ease-in-out">
+                        新しいイベントを追加
+                    </button>
+                </div>
+            </div>
+            <div id="eventListContainer" class="event-list-container max-h-[70vh] overflow-y-auto bg-gray-50 p-1 rounded-lg shadow-inner">
+                <ul id="eventList" class="space-y-6 p-3">
+                    </ul>
+                <p id="noEventsMessage" class="text-center text-gray-500 p-4 hidden">登録されているイベントはありません。</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeEventModal()">&times;</span>
+            <h2 id="modalTitle" class="text-2xl font-semibold mb-6 text-blue-700">イベント情報を入力</h2>
+            <form id="eventForm" class="space-y-6">
+                <input type="hidden" id="eventId">
+                
+                <div>
+                    <label for="eventName" class="block text-sm font-medium text-gray-700 mb-1">イベント名 <span class="text-red-500">*</span></label>
+                    <input type="text" id="eventName" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400" required>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="eventDate" class="block text-sm font-medium text-gray-700 mb-1">開催日 <span class="text-red-500">*</span></label>
+                        <input type="date" id="eventDate" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900" required>
+                    </div>
+                    <div>
+                        <label for="eventVenue" class="block text-sm font-medium text-gray-700 mb-1">会場</label>
+                        <input type="text" id="eventVenue" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400">
+                    </div>
+                </div>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="eventStartTime" class="block text-sm font-medium text-gray-700 mb-1">開始時刻 <span class="text-red-500">*</span></label>
+                        <input type="time" id="eventStartTime" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900" required>
+                    </div>
+                    <div>
+                        <label for="eventEndTime" class="block text-sm font-medium text-gray-700 mb-1">終了時刻</label>
+                        <input type="time" id="eventEndTime" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900">
+                         <p class="text-xs text-gray-500 mt-1">夜間イベント等で日付をまたぐ場合も入力可</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="eventDJ" class="block text-sm font-medium text-gray-700 mb-1">メインDJ/主催者</label>
+                    <input type="text" id="eventDJ" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400" placeholder="例: DJ Organizer">
+                </div>
+
+                <fieldset class="border border-gray-300 p-4 rounded-md">
+                    <legend class="text-lg font-medium text-blue-600 px-2">ゲストDJ & タイムテーブル</legend>
+                    <div id="guestDJsContainer" class="space-y-3 mb-3 max-h-60 overflow-y-auto p-1">
+                        </div>
+                    <button type="button" onclick="addGuestDJField()" class="text-sm bg-sky-500 hover:bg-sky-600 text-white py-1.5 px-3 rounded-md transition duration-150">ゲストDJを追加</button>
+                    <p class="text-xs text-gray-500 mt-2">各DJの行をドラッグ＆ドロップして順番を入れ替えられます。時刻は自動更新されます。</p>
+                </fieldset>
+
+                <fieldset class="border border-gray-300 p-4 rounded-md">
+                    <legend class="text-lg font-medium text-blue-600 px-2">VJ</legend>
+                    <div id="vjsContainer" class="space-y-3 mb-3 max-h-40 overflow-y-auto p-1">
+                        </div>
+                    <button type="button" onclick="addVJField()" class="text-sm bg-teal-500 hover:bg-teal-600 text-white py-1.5 px-3 rounded-md transition duration-150">VJを追加</button>
+                </fieldset>
+                
+                <div>
+                    <label for="eventNotes" class="block text-sm font-medium text-gray-700 mb-1">備考</label>
+                    <textarea id="eventNotes" rows="3" class="w-full p-3 bg-white border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeEventModal()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-md transition duration-150">キャンセル</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition duration-150">イベントを保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="notification" class="fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-md transition-opacity duration-300 opacity-0 z-[1001]">
+        メッセージ
+    </div>
+
+    <script>
+        const eventModal = document.getElementById('eventModal');
+        const eventForm = document.getElementById('eventForm');
+        const modalTitle = document.getElementById('modalTitle');
+        const eventList = document.getElementById('eventList');
+        const noEventsMessage = document.getElementById('noEventsMessage');
+        const notification = document.getElementById('notification');
+        
+        let draggedItem = null; 
+
+        function getEvents() {
+            // ローカルストレージのキーをバージョンアップ (CSS分離版のため)
+            return JSON.parse(localStorage.getItem('dj_events_v2.5')) || []; 
+        }
+
+        function saveEvents(events) {
+            localStorage.setItem('dj_events_v2.5', JSON.stringify(events));
+        }
+
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.classList.remove('bg-red-500', 'bg-green-500', 'opacity-0');
+            notification.classList.add(type === 'success' ? 'bg-green-500' : 'bg-red-500');
+            setTimeout(() => notification.classList.add('opacity-0'), 3000);
+        }
+        
+        function formatTime(dateObj) {
+            if (!dateObj || !(dateObj instanceof Date)) return '??:??';
+            const hours = dateObj.getHours().toString().padStart(2, '0');
+            const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        }
+        
+        function formatWithDay(dt, base) {
+            let prefix = "";
+            if (dt.getFullYear() > base.getFullYear() || 
+                (dt.getFullYear() === base.getFullYear() && dt.getMonth() > base.getMonth()) ||
+                (dt.getFullYear() === base.getFullYear() && dt.getMonth() === base.getMonth() && dt.getDate() > base.getDate())) {
+                prefix = "(翌)";
+            }
+            return prefix + formatTime(dt);
+        }
+
+        function openAddEventModal() { 
+            eventForm.reset();
+            document.getElementById('eventId').value = ''; 
+            modalTitle.textContent = '新しいイベントを追加';
+            
+            document.getElementById('guestDJsContainer').innerHTML = ''; 
+            document.getElementById('vjsContainer').innerHTML = '';    
+            
+            addGuestDJField(); 
+            
+            updateGuestDJTimesDisplay();
+            eventModal.style.display = 'block';
+            document.getElementById('eventStartTime').addEventListener('change', updateGuestDJTimesDisplay);
+            document.getElementById('eventDate').addEventListener('change', updateGuestDJTimesDisplay);
+        }
+
+
+        function openEditEventModal(eventId) {
+            const events = getEvents();
+            const eventToEdit = events.find(e => e.id === eventId);
+            if (!eventToEdit) {
+                showNotification('編集対象のイベントが見つかりません。', 'error');
+                return;
+            }
+
+            eventForm.reset();
+            modalTitle.textContent = 'イベントを編集';
+            document.getElementById('eventId').value = eventToEdit.id;
+            document.getElementById('eventName').value = eventToEdit.name;
+            document.getElementById('eventDate').value = eventToEdit.date;
+            document.getElementById('eventStartTime').value = eventToEdit.eventStartTime || '';
+            document.getElementById('eventEndTime').value = eventToEdit.eventEndTime || '';
+            document.getElementById('eventVenue').value = eventToEdit.venue || '';
+            document.getElementById('eventDJ').value = eventToEdit.dj || '';
+            document.getElementById('eventNotes').value = eventToEdit.notes || '';
+
+            const guestDJsContainer = document.getElementById('guestDJsContainer');
+            guestDJsContainer.innerHTML = '';
+            if (eventToEdit.guestDJs && eventToEdit.guestDJs.length > 0) {
+                eventToEdit.guestDJs.sort((a,b) => a.order - b.order).forEach(dj => addGuestDJField(dj));
+            } else {
+                 addGuestDJField(); 
+            }
+            
+            const vjsContainer = document.getElementById('vjsContainer');
+            vjsContainer.innerHTML = '';
+            if (eventToEdit.vjs && eventToEdit.vjs.length > 0) {
+                eventToEdit.vjs.forEach(vj => addVJField(vj, eventToEdit.guestDJs || []));
+            }
+            updateGuestDJTimesDisplay(); 
+            eventModal.style.display = 'block';
+            document.getElementById('eventStartTime').addEventListener('change', updateGuestDJTimesDisplay);
+            document.getElementById('eventDate').addEventListener('change', updateGuestDJTimesDisplay);
+        }
+
+        function closeEventModal() {
+            document.getElementById('eventStartTime').removeEventListener('change', updateGuestDJTimesDisplay);
+            document.getElementById('eventDate').removeEventListener('change', updateGuestDJTimesDisplay);
+            eventModal.style.display = 'none';
+        }
+        
+        function updateGuestDJTimesDisplay() {
+            const eventDateStr = document.getElementById('eventDate').value;
+            const eventStartTimeStr = document.getElementById('eventStartTime').value;
+            if (!eventDateStr || !eventStartTimeStr) { 
+                document.querySelectorAll('.guest-dj-item .dj-time-display').forEach(el => el.textContent = '--:-- - --:--');
+                return;
+            }
+
+            const baseDate = new Date(eventDateStr + 'T00:00:00'); 
+            let currentDateTime = new Date(eventDateStr + 'T' + eventStartTimeStr);
+
+            document.querySelectorAll('#guestDJsContainer .guest-dj-item').forEach(item => {
+                const durationInput = item.querySelector('.guest-dj-duration');
+                const timeDisplay = item.querySelector('.dj-time-display');
+                const duration = parseInt(durationInput.value) || 0;
+
+                const djStartTime = new Date(currentDateTime);
+                currentDateTime.setMinutes(currentDateTime.getMinutes() + duration);
+                const djEndTime = new Date(currentDateTime);
+                
+                timeDisplay.textContent = `${formatWithDay(djStartTime, baseDate)} - ${formatWithDay(djEndTime, baseDate)}`;
+                durationInput.onchange = updateGuestDJTimesDisplay; 
+            });
+        }
+
+
+        function addGuestDJField(dj = null) {
+            const container = document.getElementById('guestDJsContainer');
+            const djId = dj ? dj.id : crypto.randomUUID(); 
+            const djName = dj ? dj.name : '';
+            const djDuration = dj ? dj.duration : 50; 
+
+            const div = document.createElement('div');
+            div.className = 'guest-dj-item flex items-center space-x-2 p-2 border border-gray-300 rounded-md draggable bg-gray-50 hover:bg-gray-100';
+            div.setAttribute('draggable', true);
+            div.dataset.guestDjId = djId; 
+
+            div.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-gray-500 cursor-grab flex-shrink-0">
+                  <path fill-rule="evenodd" d="M10 3a.75.75 0 01.75.75v12.5a.75.75 0 01-1.5 0V3.75A.75.75 0 0110 3zM3.75 10a.75.75 0 01.75-.75h11.5a.75.75 0 010 1.5H4.5a.75.75 0 01-.75-.75z" clip-rule="evenodd" />
+                </svg>
+                <input type="hidden" class="guest-dj-id" value="${djId}">
+                <input type="text" class="guest-dj-name flex-grow p-2 bg-white border border-gray-300 rounded-md input-sm text-gray-900 placeholder-gray-400" placeholder="ゲストDJ名" value="${djName}" required>
+                <input type="number" class="guest-dj-duration w-20 p-2 bg-white border border-gray-300 rounded-md input-sm text-gray-900" placeholder="分" value="${djDuration}" min="10" step="5" required>
+                <span class="text-gray-600 text-xs">分</span>
+                <span class="dj-time-display text-xs text-blue-600 w-28 text-center">--:-- - --:--</span>
+                <button type="button" onclick="removeGuestDJField(this)" class="text-red-500 hover:text-red-600 font-bold p-1 rounded-full flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                </button>
+            `;
+            container.appendChild(div);
+            addDragDropListeners(div);
+            updateGuestDJTimesDisplay(); 
+            updateAllVJAssignedDJCheckboxes();
+        }
+        
+        function removeGuestDJField(button) {
+            button.closest('.guest-dj-item').remove();
+            updateGuestDJTimesDisplay();
+            updateAllVJAssignedDJCheckboxes();
+        }
+
+        function addVJField(vj = null, currentGuestDJs = []) {
+            const container = document.getElementById('vjsContainer');
+            const vjId = vj ? vj.id : crypto.randomUUID(); 
+            const vjName = vj ? vj.name : '';
+            const assignedDJIds = (vj && currentGuestDJs.length > 0) ? (vj.assignedDJIds || []) : [];
+
+            const div = document.createElement('div');
+            div.className = 'vj-item flex flex-col space-y-2 p-3 border border-gray-300 rounded-md bg-gray-50 hover:bg-gray-100';
+            div.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <input type="hidden" class="vj-id" value="${vjId}">
+                    <input type="text" class="vj-name w-full p-2 bg-white border border-gray-300 rounded-md input-sm text-gray-900 placeholder-gray-400" placeholder="VJ名" value="${vjName}" required>
+                    <button type="button" onclick="removeVJField(this)" class="text-red-500 hover:text-red-600 font-bold p-1 rounded-full flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" /></svg>
+                    </button>
+                </div>
+                <div class="assigned-djs-for-vj pl-2">
+                    <p class="text-xs text-gray-500 mb-1">担当するゲストDJ:</p>
+                    <div class="assigned-djs-checkboxes grid grid-cols-2 sm:grid-cols-3 gap-1">
+                        ${generateAssignedDJCheckboxes(vjId, assignedDJIds, currentGuestDJs.length > 0 ? currentGuestDJs : getGuestDJsFromForm())}
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeVJField(button) {
+            button.closest('.vj-item').remove();
+        }
+        
+        function getGuestDJsFromForm() {
+            const guestDJNodes = document.querySelectorAll('#guestDJsContainer .guest-dj-item');
+            return Array.from(guestDJNodes).map(node => ({
+                id: node.querySelector('.guest-dj-id').value,
+                name: node.querySelector('.guest-dj-name').value || '未入力DJ'
+            }));
+        }
+
+        function generateAssignedDJCheckboxes(vjId, assignedDJIds = [], guestDJs = []) {
+            if (guestDJs.length === 0) {
+                return '<p class="text-xs text-gray-500 col-span-full">ゲストDJを先に追加してください。</p>';
+            }
+            return guestDJs.map(dj => `
+                <label class="flex items-center space-x-1 text-xs text-gray-700">
+                    <input type="checkbox" class="assigned-dj-checkbox bg-white border-gray-300 rounded text-blue-600 focus:ring-blue-500" data-vj-id="${vjId}" data-guest-dj-id="${dj.id}" ${assignedDJIds.includes(dj.id) ? 'checked' : ''}>
+                    <span>${dj.name}</span>
+                </label>
+            `).join('');
+        }
+
+        function updateAllVJAssignedDJCheckboxes() {
+            const guestDJs = getGuestDJsFromForm();
+            document.querySelectorAll('#vjsContainer .vj-item').forEach(vjItem => {
+                const vjId = vjItem.querySelector('.vj-id').value;
+                const checkboxesContainer = vjItem.querySelector('.assigned-djs-checkboxes');
+                const previouslyCheckedIds = Array.from(checkboxesContainer.querySelectorAll('input:checked')).map(cb => cb.dataset.guestDjId);
+                checkboxesContainer.innerHTML = generateAssignedDJCheckboxes(vjId, previouslyCheckedIds, guestDJs);
+            });
+        }
+
+        function addDragDropListeners(item) {
+            item.addEventListener('dragstart', handleDragStart);
+            item.addEventListener('dragover', handleDragOver);
+            item.addEventListener('drop', handleDrop);
+            item.addEventListener('dragend', handleDragEnd);
+        }
+
+        function handleDragStart(e) {
+            draggedItem = e.target.closest('.guest-dj-item');
+            setTimeout(() => { 
+                if (draggedItem) draggedItem.classList.add('dragging');
+            }, 0);
+            e.dataTransfer.effectAllowed = 'move';
+            if (draggedItem) e.dataTransfer.setData('text/plain', draggedItem.dataset.guestDjId); 
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault(); 
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const targetItem = e.target.closest('.guest-dj-item');
+            const container = document.getElementById('guestDJsContainer');
+            if (targetItem && draggedItem && targetItem !== draggedItem) {
+                const targetRect = targetItem.getBoundingClientRect();
+                if (e.clientY < targetRect.top + targetRect.height / 2) {
+                    container.insertBefore(draggedItem, targetItem);
+                } else {
+                    container.insertBefore(draggedItem, targetItem.nextSibling);
+                }
+            } else if (draggedItem && !targetItem && container.contains(e.target)) { 
+                 container.appendChild(draggedItem);
+            }
+        }
+
+        function handleDragEnd() {
+            if (draggedItem) {
+                draggedItem.classList.remove('dragging');
+            }
+            draggedItem = null;
+            updateGuestDJTimesDisplay(); 
+            updateAllVJAssignedDJCheckboxes(); 
+        }
+
+        eventForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const eventId = document.getElementById('eventId').value;
+            
+            const guestDJNodes = document.querySelectorAll('#guestDJsContainer .guest-dj-item');
+            const guestDJs = Array.from(guestDJNodes).map((node, index) => ({
+                id: node.querySelector('.guest-dj-id').value,
+                name: node.querySelector('.guest-dj-name').value,
+                duration: parseInt(node.querySelector('.guest-dj-duration').value) || 0,
+                order: index 
+            }));
+
+            const vjNodes = document.querySelectorAll('#vjsContainer .vj-item');
+            const vjs = Array.from(vjNodes).map(node => {
+                const vjId = node.querySelector('.vj-id').value;
+                const assignedDJIds = Array.from(node.querySelectorAll(`.assigned-dj-checkbox[data-vj-id="${vjId}"]:checked`))
+                                          .map(checkbox => checkbox.dataset.guestDjId);
+                return { id: vjId, name: node.querySelector('.vj-name').value, assignedDJIds: assignedDJIds };
+            });
+
+            const eventData = {
+                id: eventId || crypto.randomUUID(), 
+                name: document.getElementById('eventName').value,
+                date: document.getElementById('eventDate').value,
+                eventStartTime: document.getElementById('eventStartTime').value,
+                eventEndTime: document.getElementById('eventEndTime').value,
+                venue: document.getElementById('eventVenue').value,
+                dj: document.getElementById('eventDJ').value, 
+                notes: document.getElementById('eventNotes').value,
+                guestDJs: guestDJs,
+                vjs: vjs
+            };
+
+            if (!eventData.name || !eventData.date || !eventData.eventStartTime) {
+                showNotification('イベント名、開催日、開始時刻は必須です。', 'error');
+                return;
+            }
+            for (const guest of guestDJs) {
+                if (!guest.name || guest.duration <= 0) {
+                    showNotification('すべてのゲストDJ名と有効な持ち時間を入力してください。', 'error');
+                    return;
+                }
+            }
+            for (const vj of vjs) {
+                if (!vj.name) {
+                    showNotification('すべてのVJ名を入力してください。', 'error');
+                    return;
+                }
+            }
+
+            let events = getEvents();
+            if (eventId && events.some(ev => ev.id === eventId)) { 
+                events = events.map(ev => ev.id === eventId ? eventData : ev);
+                showNotification('イベントが更新されました！');
+            } else { 
+                eventData.id = crypto.randomUUID(); 
+                events.push(eventData);
+                showNotification('イベントが追加されました！');
+            }
+            saveEvents(events);
+            renderEvents();
+            closeEventModal();
+        });
+
+        window.deleteEvent = function(id) {
+            const userConfirmed = window.confirm('このイベントを本当に削除しますか？');
+            if (userConfirmed) {
+                let events = getEvents();
+                events = events.filter(event => event.id !== id);
+                saveEvents(events);
+                renderEvents();
+                showNotification('イベントが削除されました。');
+            }
+        }
+        
+        window.exportEventAsJson = function(eventId) {
+            const events = getEvents();
+            const eventToExport = events.find(e => e.id === eventId);
+            if (eventToExport) {
+                const jsonString = JSON.stringify(eventToExport, null, 2);
+                const blob = new Blob([jsonString], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                const safeEventName = eventToExport.name.replace(/[^a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAFー]/g, '_');
+                const safeEventDate = eventToExport.date.replace(/-/g, '');
+                a.download = `event_${safeEventName}_${safeEventDate}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification('イベントデータをJSONでエクスポートしました。');
+            } else {
+                showNotification('エクスポート対象のイベントが見つかりません。', 'error');
+            }
+        }
+
+        function triggerJsonImport() {
+            document.getElementById('jsonImportFile').click();
+        }
+
+        window.importEventFromJson = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedEvent = JSON.parse(e.target.result);
+                        if (importedEvent && importedEvent.name && importedEvent.date && importedEvent.eventStartTime && Array.isArray(importedEvent.guestDJs) && Array.isArray(importedEvent.vjs)) {
+                            let events = getEvents();
+                            importedEvent.id = crypto.randomUUID();
+                            if(importedEvent.guestDJs) {
+                                importedEvent.guestDJs = importedEvent.guestDJs.map(dj => ({...dj, id: crypto.randomUUID()}));
+                            }
+                            if(importedEvent.vjs) {
+                                importedEvent.vjs = importedEvent.vjs.map(vj => ({...vj, id: crypto.randomUUID(), assignedDJIds: [] })); 
+                            }
+                            events.push(importedEvent);
+                            saveEvents(events);
+                            renderEvents();
+                            showNotification(`イベント「${importedEvent.name}」をインポートしました。`);
+                        } else {
+                            showNotification('無効なJSONファイル形式です。', 'error');
+                        }
+                    } catch (err) {
+                        showNotification('JSONファイルの読み込みに失敗しました: ' + err.message, 'error');
+                        console.error("JSON Import Error:", err);
+                    } finally {
+                        event.target.value = null;
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        window.copyTimetableToClipboard = function(eventId) {
+            const events = getEvents();
+            const event = events.find(e => e.id === eventId);
+            if (!event) {
+                showNotification('対象のイベントが見つかりません。', 'error');
+                return;
+            }
+
+            if (!event.guestDJs || event.guestDJs.length === 0 || !event.date || !event.eventStartTime) {
+                showNotification('コピーするタイムテーブル情報がありません。', 'error');
+                return;
+            }
+
+            let timetableText = `イベント名: ${event.name}\n`;
+            timetableText += `開催日: ${new Date(event.date).toLocaleDateString('ja-JP')} ${event.eventStartTime}${event.eventEndTime ? ' ~ ' + event.eventEndTime : ''}\n`;
+            if (event.venue) timetableText += `会場: ${event.venue}\n`;
+            timetableText += "------------------------------------\n";
+            timetableText += "TIME           | DJ                  | VJ\n";
+            timetableText += "------------------------------------\n";
+
+            const baseDate = new Date(event.date + 'T00:00:00');
+            let currentDateTime = new Date(event.date + 'T' + event.eventStartTime);
+
+            event.guestDJs.sort((a,b) => a.order - b.order).forEach(dj => {
+                const djStartTime = new Date(currentDateTime);
+                currentDateTime.setMinutes(currentDateTime.getMinutes() + (dj.duration || 0));
+                const djEndTime = new Date(currentDateTime);
+                
+                const timeStr = `${formatWithDay(djStartTime, baseDate)} - ${formatWithDay(djEndTime, baseDate)}`.padEnd(15);
+                const djNameStr = dj.name.padEnd(20);
+                
+                let assignedVJName = "VJなし";
+                if (event.vjs && event.vjs.length > 0) {
+                    const assignedVJ = event.vjs.find(vj => vj.assignedDJIds && vj.assignedDJIds.includes(dj.id));
+                    if (assignedVJ) {
+                        assignedVJName = assignedVJ.name;
+                    }
+                }
+                timetableText += `${timeStr}| ${djNameStr}| ${assignedVJName}\n`;
+            });
+            timetableText += "------------------------------------\n";
+
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                     navigator.clipboard.writeText(timetableText)
+                        .then(() => showNotification('タイムテーブルをクリップボードにコピーしました！'))
+                        .catch(err => {
+                            console.error('クリップボードへのコピーに失敗(navigator):', err);
+                            fallbackCopyTextToClipboard(timetableText);
+                        });
+                } else {
+                    fallbackCopyTextToClipboard(timetableText);
+                }
+            } catch (e) {
+                 fallbackCopyTextToClipboard(timetableText);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed"; 
+            textArea.style.left = "-9999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showNotification('タイムテーブルをクリップボードにコピーしました！(fallback)');
+                } else {
+                    showNotification('クリップボードへのコピーに失敗しました。手動でコピーしてください。', 'error');
+                    console.error('クリップボードへのコピーに失敗(fallback execCommand)');
+                }
+            } catch (err) {
+                showNotification('クリップボードへのコピーに失敗しました。手動でコピーしてください。', 'error');
+                console.error('クリップボードへのコピーに失敗(fallback exception):', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+
+        function renderEvents() {
+            const events = getEvents();
+            eventList.innerHTML = ''; 
+
+            if (events.length === 0) {
+                noEventsMessage.classList.remove('hidden');
+                eventList.classList.add('hidden');
+            } else {
+                noEventsMessage.classList.add('hidden');
+                eventList.classList.remove('hidden');
+                events.sort((a, b) => { 
+                    const dateA = new Date(a.date + 'T' + (a.eventStartTime || '00:00'));
+                    const dateB = new Date(b.date + 'T' + (b.eventStartTime || '00:00'));
+                    return dateA - dateB;
+                }); 
+                
+                events.forEach(event => {
+                    const li = document.createElement('li');
+                    li.className = 'bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-200 border border-gray-200';
+                    
+                    let timetableHTML = '<p class="text-xs text-gray-500 col-span-3">タイムテーブル情報がありません。</p>';
+                    if (event.guestDJs && event.guestDJs.length > 0 && event.date && event.eventStartTime) {
+                        const baseDate = new Date(event.date + 'T00:00:00');
+                        let currentDateTime = new Date(event.date + 'T' + event.eventStartTime);
+                        
+                        timetableHTML = `
+                            <div class="timetable-header text-xs">時間</div>
+                            <div class="timetable-header text-xs">DJ</div>
+                            <div class="timetable-header text-xs text-right">VJ</div>
+                        `;
+
+                        event.guestDJs.sort((a,b) => a.order - b.order).forEach(dj => {
+                            const djStartTime = new Date(currentDateTime);
+                            currentDateTime.setMinutes(currentDateTime.getMinutes() + (dj.duration || 0));
+                            const djEndTime = new Date(currentDateTime);
+                            
+                            let assignedVJName = "VJなし";
+                            if (event.vjs && event.vjs.length > 0) {
+                                const assignedVJ = event.vjs.find(vj => vj.assignedDJIds && vj.assignedDJIds.includes(dj.id));
+                                if (assignedVJ) {
+                                    assignedVJName = assignedVJ.name;
+                                }
+                            }
+                            timetableHTML += `
+                                <div class="text-xs text-blue-600 whitespace-nowrap">${formatWithDay(djStartTime, baseDate)}<br class="sm:hidden"/> - ${formatWithDay(djEndTime, baseDate)}</div>
+                                <div class="text-sm text-gray-800 truncate" title="${dj.name}">${dj.name}</div>
+                                <div class="text-xs text-gray-600 text-right truncate" title="${assignedVJName}">${assignedVJName}</div>
+                            `;
+                        });
+                    }
+                    
+                    const eventTimeStr = event.eventStartTime ? `${event.eventStartTime} ${event.eventEndTime ? '~ ' + event.eventEndTime : ''}` : '時間未定';
+
+                    li.innerHTML = `
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
+                            <div>
+                                <h3 class="text-xl font-semibold text-blue-700">${event.name}</h3>
+                                <p class="text-sm text-gray-600">
+                                    ${new Date(event.date).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })} ${eventTimeStr}
+                                    ${event.venue ? `@ ${event.venue}`: ''}
+                                </p>
+                                ${event.dj ? `<p class="text-sm text-gray-700">主催/メインDJ: ${event.dj}</p>` : ''}
+                            </div>
+                            <div class="flex flex-wrap gap-2 mt-2 sm:mt-0 flex-shrink-0 action-button-group">
+                                <button onclick="copyTimetableToClipboard('${event.id}')" class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-1 px-2.5 rounded-md text-xs transition duration-150" title="タイムテーブルをテキストでコピー">TTコピー</button>
+                                <button onclick="exportEventAsJson('${event.id}')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-1 px-2.5 rounded-md text-xs transition duration-150" title="イベントデータをJSONでエクスポート">JSON出力</button>
+                                <button onclick="openEditEventModal('${event.id}')" class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-medium py-1 px-2.5 rounded-md text-xs transition duration-150">編集</button>
+                                <button onclick="deleteEvent('${event.id}')" class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-2.5 rounded-md text-xs transition duration-150">削除</button>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <h4 class="font-semibold text-blue-600 mb-2 text-sm">タイムテーブル:</h4>
+                            <div class="timetable-grid bg-gray-50 p-3 rounded-md border border-gray-200">
+                                ${timetableHTML}
+                            </div>
+                        </div>
+                        ${event.notes ? `<div class="mt-3 pt-3 border-t border-gray-200"><p class="text-xs text-gray-500">備考: ${event.notes}</p></div>` : ''}
+                    `;
+                    eventList.appendChild(li);
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderEvents();
+            window.onclick = function(event) {
+                if (event.target == eventModal) {
+                    closeEventModal();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
