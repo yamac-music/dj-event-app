@@ -10,27 +10,27 @@ body {
     width: 100%; 
     height: 100%; 
     overflow: auto; 
-    background-color: rgba(0,0,0,0.6); /* Backdrop a bit darker */
+    background-color: rgba(0,0,0,0.4); 
 }
 .modal-content {
-    background-color: #1f2937; /* bg-slate-800 / bg-gray-800 */
+    background-color: #ffffff; 
     margin: 5% auto; 
     padding: 20px;
-    border: 1px solid #374151; /* border-slate-700 / border-gray-700 */
+    border: 1px solid #e5e7eb; 
     width: 90%; 
     max-width: 750px; 
     border-radius: 0.5rem; 
-    color: #d1d5db; /* text-slate-300 / text-gray-300 */
+    color: #374151; 
 }
 .close-button {
-    color: #9ca3af; /* text-slate-400 / text-gray-400 */
+    color: #9ca3af; 
     float: right;
     font-size: 28px;
     font-weight: bold;
 }
 .close-button:hover,
 .close-button:focus {
-    color: #f3f4f6; /* text-slate-100 / text-gray-100 */
+    color: #1f2937; 
     text-decoration: none;
     cursor: pointer;
 }
@@ -39,23 +39,23 @@ body {
 }
 .dragging {
     opacity: 0.5;
-    background: #374151; /* bg-slate-700 / bg-gray-700 */
+    background: #e5e7eb; 
 }
-/* Custom scrollbar for dark theme */
+/* Custom scrollbar for light theme */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: #1f2937; /* bg-slate-800 / bg-gray-800 */
+    background: #f3f4f6; 
     border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb {
-    background: #4b5563; /* bg-slate-600 / bg-gray-600 */
+    background: #d1d5db; 
     border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: #6b7280; /* bg-slate-500 / bg-gray-500 */
+    background: #9ca3af; 
 }
 .input-sm {
     padding: 0.5rem 0.75rem; 
@@ -69,14 +69,10 @@ body {
 }
 .timetable-header {
     font-weight: 600; 
-    color: #9ca3af; /* text-slate-400 / text-gray-400 */
+    color: #6b7280; 
     padding-bottom: 0.25rem;
-    border-bottom: 1px solid #4b5563; /* border-slate-600 / border-gray-600 */
+    border-bottom: 1px solid #d1d5db; 
 }
 .action-button-group button {
     margin-left: 0.5rem; 
-}
-/* Invert picker icon for time inputs in dark mode */
-input[type="time"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.8);
 }
